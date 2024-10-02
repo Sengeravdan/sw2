@@ -1,0 +1,62 @@
+int period = 1000;
+int duty = 0;
+
+void set_period(int new_period) {
+    if (new_period >= 100 && new_period <= 10000) {
+        period = new_period;
+    } else {
+        Serial.println("Period out of range (100 - 10000 us)");
+    }
+}
+
+void set_duty(int new_duty) {
+    if (new_duty >= 0 && new_duty <= 100) {
+        duty = new_duty;
+    } else {
+        Serial.println("Duty out of range (0 - 100%)");
+    }
+}
+
+void pwm_signal() {
+    int on_time = (period * duty) / 100;
+    int off_time = period - on_time;
+    
+    digitalWrite(7, 1);  // Set pin 7 to HIGH (turn on LED)
+    delayMicroseconds(on_time);
+    digitalWrite(7, 0);  // Set pin 7 to LOW (turn off LED)
+    delayMicroseconds(off_time);
+}
+
+void triangle_brightness_pattern() {
+    for (int i = 0; i <= 100; i++) {
+        set_duty(i);
+        for (int j = 0; j < 1000 / period; j++) {
+            pwm_signal();
+        }
+    }
+    for (int i = 100; i >= 0; i--) {
+        set_duty(i);
+        for (int j = 0; j < 1000 / period; j++) {
+            pwm_signal();
+        }
+    }
+}
+
+void setup() {
+    pinMode(7, OUTPUT);
+    Serial.begin(9600);
+}
+
+void loop() {
+    set_period(10000);
+    triangle_brightness_pattern();
+    delay(1000);
+
+    set_period(1000);
+    triangle_brightness_pattern();
+    delay(1000);
+
+    set_period(100);
+    triangle_brightness_pattern();
+    delay(1000);
+}
